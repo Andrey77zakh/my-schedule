@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Расписание занятий</title>
+  <link rel="manifest" href="/manifest.json">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -44,9 +45,8 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       font-size: 0.95rem;
     }
-    /* Добавляем отступ сверху у контейнера под фиксированный тулбар */
     .container {
-      margin-top: 80px; /* Учитываем высоту тулбара и отступ */
+      margin-top: 80px;
       margin-bottom: 80px;
       max-width: 900px;
       background: white;
@@ -95,7 +95,7 @@
     }
     .time-left {
       font-size: 0.8rem;
-      color: #8E44AD; /* Фиолетовый цвет */
+      color: #8E44AD;
       font-weight: 500;
       display: block;
       margin-top: 6px;
@@ -124,7 +124,6 @@
     .lesson { flex: 1; }
     .students { font-weight: 600; min-width: 100px; text-align: right; }
     
-    /* Стили для обозначения статуса занятий */
     .entry.past {
       background: #f8f9fa;
       color: #adb5bd;
@@ -205,13 +204,12 @@
     .toolbar button.active:hover {
       background: #0069d9;
     }
-    /* Стили для всплывающего уведомления */
     .notification {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(128, 128, 128, 0.9); /* Серый цвет */
+      background: rgba(128, 128, 128, 0.9);
       color: white;
       padding: 16px 24px;
       border-radius: 12px;
@@ -231,7 +229,6 @@
       opacity: 1;
       visibility: visible;
     }
-    /* Стили для модального окна редактирования */
     .modal {
       display: none;
       position: fixed;
@@ -322,7 +319,6 @@
     .btn:hover {
       opacity: 0.9;
     }
-    /* Кнопки действий для записи */
     .entry-actions {
       display: flex;
       gap: 5px;
@@ -346,317 +342,21 @@
   </style>
 </head>
 <body>
-  <!-- Фиксированная панель сверху с информацией о следующем занятии -->
   <div class="sticky-toolbar" id="next-lesson-bar">
     Загрузка информации о следующем занятии...
   </div>
 
   <div class="container">
     <header><h1>Расписание занятий</h1></header>
-    
-    <div class="schedule">
-
-      <!-- Воскресенье -->
-      <div class="day-header" id="header-sun" onclick="toggle('sun')">Воскресенье<span class="date-badge" id="date-sun">31.08.25</span></div>
-      <div class="day-content" id="content-sun">
-        <div class="entry private" data-id="sun-0">
-          <div class="entry-top">
-            <div class="time">10:00</div>
-            <div class="lesson">Французский язык</div>
-            <div class="students">Тереза</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('sun-0')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('sun-0')">Удалить</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Понедельник -->
-      <div class="day-header" id="header-mon" onclick="toggle('mon')">Понедельник<span class="date-badge" id="date-mon">02.09.25</span></div>
-      <div class="day-content" id="content-mon">
-        <div class="entry private" data-id="mon-0">
-          <div class="entry-top">
-            <div class="time">18:00</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">Тереза</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('mon-0')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('mon-0')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry private" data-id="mon-1">
-          <div class="entry-top">
-            <div class="time">19:00</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">Злата</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('mon-1')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('mon-1')">Удалить</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Вторник -->
-      <div class="day-header" id="header-tue" onclick="toggle('tue')">Вторник<span class="date-badge" id="date-tue">03.09.25</span></div>
-      <div class="day-content" id="content-tue">
-        <div class="entry school" data-id="tue-0">
-          <div class="entry-top">
-            <div class="time">09:55</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">5 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('tue-0')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('tue-0')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry school" data-id="tue-1">
-          <div class="entry-top">
-            <div class="time">10:45</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">4 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('tue-1')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('tue-1')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry school" data-id="tue-2">
-          <div class="entry-top">
-            <div class="time">11:35</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">2 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('tue-2')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('tue-2')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry school" data-id="tue-3">
-          <div class="entry-top">
-            <div class="time">12:25</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">3 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('tue-3')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('tue-3')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry private" data-id="tue-4">
-          <div class="entry-top">
-            <div class="time">19:00</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">Аня</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('tue-4')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('tue-4')">Удалить</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Среда -->
-      <div class="day-header" id="header-wed" onclick="toggle('wed')">Среда<span class="date-badge" id="date-wed">04.09.25</span></div>
-      <div class="day-content" id="content-wed">
-        <div class="entry school" data-id="wed-0">
-          <div class="entry-top">
-            <div class="time">09:55</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">4 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('wed-0')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('wed-0')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry school" data-id="wed-1">
-          <div class="entry-top">
-            <div class="time">10:45</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">3 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('wed-1')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('wed-1')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry school" data-id="wed-2">
-          <div class="entry-top">
-            <div class="time">11:35</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">2 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('wed-2')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('wed-2')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry school" data-id="wed-3">
-          <div class="entry-top">
-            <div class="time">12:25</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">1 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('wed-3')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('wed-3')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry school" data-id="wed-4">
-          <div class="entry-top">
-            <div class="time">13:25</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">5 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('wed-4')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('wed-4')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry private" data-id="wed-5">
-          <div class="entry-top">
-            <div class="time">19:00</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">Злата</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('wed-5')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('wed-5')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry private" data-id="wed-6">
-          <div class="entry-top">
-            <div class="time">20:00</div>
-            <div class="lesson">Французский</div>
-            <div class="students">Тереза</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('wed-6')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('wed-6')">Удалить</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Четверг -->
-      <div class="day-header" id="header-thu" onclick="toggle('thu')">Четверг<span class="date-badge" id="date-thu">05.09.25</span></div>
-      <div class="day-content" id="content-thu">
-        <div class="entry school" data-id="thu-0">
-          <div class="entry-top">
-            <div class="time">09:55</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">5 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('thu-0')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('thu-0')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry school" data-id="thu-1">
-          <div class="entry-top">
-            <div class="time">10:45</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">4 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('thu-1')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('thu-1')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry school" data-id="thu-2">
-          <div class="entry-top">
-            <div class="time">11:35</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">2 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('thu-2')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('thu-2')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry school" data-id="thu-3">
-          <div class="entry-top">
-            <div class="time">12:25</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">1 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('thu-3')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('thu-3')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry school" data-id="thu-4">
-          <div class="entry-top">
-            <div class="time">13:25</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">3 класс</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('thu-4')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('thu-4')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry private" data-id="thu-5">
-          <div class="entry-top">
-            <div class="time">18:00</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">Злата</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('thu-5')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('thu-5')">Удалить</button>
-          </div>
-        </div>
-        <div class="entry private" data-id="thu-6">
-          <div class="entry-top">
-            <div class="time">19:00</div>
-            <div class="lesson">Английский язык</div>
-            <div class="students">Аня</div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('thu-6')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('thu-6')">Удалить</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Пятница -->
-      <div class="day-header" id="header-fri" onclick="toggle('fri')">Пятница<span class="date-badge" id="date-fri">06.09.25</span></div>
-      <div class="day-content" id="content-fri">
-        <div class="entry other" data-id="fri-0">
-          <div class="entry-top">
-            <div class="time">День</div>
-            <div class="lesson">Уборка и учёба</div>
-            <div class="students"></div>
-          </div>
-          <div class="entry-actions">
-            <button class="btn-action btn-edit" onclick="editEntry('fri-0')">Изменить</button>
-            <button class="btn-action btn-delete" onclick="deleteEntry('fri-0')">Удалить</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Суббота -->
-      <div class="day-header green" id="header-sat" onclick="toggle('sat')">Суббота<span class="date-badge" id="date-sat">07.09.25</span></div>
-      <div class="day-content" id="content-sat">
-        <div class="rest-day-container">
-          День покоя
-          <div class="rest-day-text" id="sabbath-verse"></div>
-        </div>
-      </div>
-
+    <div class="schedule" id="schedule-container">
+      <!-- Содержимое будет генерироваться динамически -->
     </div>
   </div>
 
-  <!-- Кнопка для добавления нового занятия -->
   <div style="position: fixed; bottom: 90px; right: 20px; z-index: 101;">
     <button class="btn btn-primary" onclick="openAddModal()">+</button>
   </div>
 
-  <!-- Модальное окно для добавления/редактирования -->
   <div id="editModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -712,11 +412,9 @@
     <button id="btn-next" onclick="goToWeek(1)">Следующая неделя</button>
   </div>
 
-  <!-- Всплывающее уведомление -->
   <div class="notification" id="notification"></div>
 
   <script>
-    // Стих из Писания о субботе
     const sabbathVerses = [
       "Помни день субботний, чтобы святить его; шесть дней работай и делай всякие дела твои, а день седьмой — суббота Господу, Богу твоему: не делай в оный никакого дела ни ты, ни сын твой, ни дочь твоя, ни раб твой, ни рабыня твоя, ни скот твой, ни пришлец, который в жилищах твоих; ибо в шесть дней создал Господь небо и землю, море и всё, что в них, а в день седьмой почил; посему благословил Господь день субботний и освятил его. (Исход 20:8-11)",
       "Я Господь Бог ваш: по Моим заповедям поступайте, и Мои уставы соблюдайте и исполняйте их. И святите субботы Мои, чтобы они были знамением между Мною и вами, дабы вы знали, что Я Господь Бог ваш. (Иезекииль 20:19-20)",
@@ -733,8 +431,147 @@
       "И помни, что ты был рабом в земле Египетской, но Господь, Бог твой, вывел тебя оттуда рукою крепкою и мышцею высокою, потому и повелел тебе Господь, Бог твой, соблюдать день субботний и свято хранить его. (Второзаконие 5:15)"
     ];
 
+    // Ключ для localStorage
+    const STORAGE_KEY = 'scheduleData_v1';
+    
     // Массив для хранения всех занятий
     let scheduleData = [];
+
+    // Инициализация: загрузка данных из localStorage или установка данных по умолчанию
+    function initScheduleData() {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData) {
+        try {
+          scheduleData = JSON.parse(savedData);
+          console.log('Данные загружены из localStorage');
+        } catch (e) {
+          console.error('Ошибка при парсинге данных из localStorage:', e);
+          // Если данные повреждены, используем данные по умолчанию
+          scheduleData = getDefaultSchedule();
+        }
+      } else {
+        // Данные по умолчанию из PDF
+        scheduleData = getDefaultSchedule();
+      }
+    }
+
+    // Получение расписания по умолчанию
+    function getDefaultSchedule() {
+      return [
+        { id: 'sun-0', day: 'sun', time: '10:00', lesson: 'Французский', students: 'Тереза', type: 'private' },
+        { id: 'mon-0', day: 'mon', time: '18:00', lesson: 'Английский', students: 'Тереза', type: 'private' },
+        { id: 'mon-1', day: 'mon', time: '19:00', lesson: 'Английский', students: 'Злата', type: 'private' },
+        { id: 'tue-0', day: 'tue', time: '09:55', lesson: 'Английский', students: '5 класс', type: 'school' },
+        { id: 'tue-1', day: 'tue', time: '10:45', lesson: 'Английский', students: '4 класс', type: 'school' },
+        { id: 'tue-2', day: 'tue', time: '11:35', lesson: 'Английский', students: '2 класс', type: 'school' },
+        { id: 'tue-3', day: 'tue', time: '12:25', lesson: 'Английский', students: '3 класс', type: 'school' },
+        { id: 'tue-4', day: 'tue', time: '19:00', lesson: 'Английский', students: 'Аня', type: 'private' },
+        { id: 'wed-0', day: 'wed', time: '09:55', lesson: 'Английский', students: '4 класс', type: 'school' },
+        { id: 'wed-1', day: 'wed', time: '10:45', lesson: 'Английский', students: '3 класс', type: 'school' },
+        { id: 'wed-2', day: 'wed', time: '11:35', lesson: 'Английский', students: '2 класс', type: 'school' },
+        { id: 'wed-3', day: 'wed', time: '12:25', lesson: 'Английский', students: '1 класс', type: 'school' },
+        { id: 'wed-4', day: 'wed', time: '13:25', lesson: 'Английский', students: '5 класс', type: 'school' },
+        { id: 'wed-5', day: 'wed', time: '19:00', lesson: 'Английский', students: 'Злата', type: 'private' },
+        { id: 'wed-6', day: 'wed', time: '20:00', lesson: 'Французский', students: 'Тереза', type: 'private' },
+        { id: 'thu-0', day: 'thu', time: '09:55', lesson: 'Английский', students: '5 класс', type: 'school' },
+        { id: 'thu-1', day: 'thu', time: '10:45', lesson: 'Английский', students: '4 класс', type: 'school' },
+        { id: 'thu-2', day: 'thu', time: '11:35', lesson: 'Английский', students: '2 класс', type: 'school' },
+        { id: 'thu-3', day: 'thu', time: '12:25', lesson: 'Английский', students: '1 класс', type: 'school' },
+        { id: 'thu-4', day: 'thu', time: '13:25', lesson: 'Английский', students: '3 класс', type: 'school' },
+        { id: 'thu-5', day: 'thu', time: '18:00', lesson: 'Английский', students: 'Злата', type: 'private' },
+        { id: 'thu-6', day: 'thu', time: '19:00', lesson: 'Английский', students: 'Аня', type: 'private' },
+        { id: 'fri-0', day: 'fri', time: 'День', lesson: 'Уборка и учёба', students: '', type: 'other' }
+      ];
+    }
+
+    // Сохранение данных в localStorage
+    function saveToLocalStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(scheduleData));
+        console.log('Данные сохранены в localStorage');
+      } catch (e) {
+        console.error('Ошибка при сохранении в localStorage:', e);
+        showNotification('Ошибка сохранения. Данные могут быть потеряны.');
+      }
+    }
+
+    // Генерация нового уникального ID
+    function generateId(day) {
+      const dayEntries = scheduleData.filter(item => item.day === day);
+      return `${day}-${dayEntries.length}`;
+    }
+
+    // Обновление DOM на основе scheduleData
+    function updateScheduleDOM() {
+      const container = document.getElementById('schedule-container');
+      container.innerHTML = ''; // Очищаем контейнер
+
+      const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      const dayNames = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+
+      dayKeys.forEach((dayKey, index) => {
+        const dayName = dayNames[index];
+        
+        // Создаем заголовок дня
+        const header = document.createElement('div');
+        header.className = 'day-header';
+        header.id = `header-${dayKey}`;
+        header.onclick = () => toggle(dayKey);
+        header.innerHTML = `${dayName}<span class="date-badge" id="date-${dayKey}">--.--.--</span>`;
+        container.appendChild(header);
+
+        // Создаем контент дня
+        const content = document.createElement('div');
+        content.className = 'day-content';
+        content.id = `content-${dayKey}`;
+        container.appendChild(content);
+
+        // Если это суббота, добавляем контейнер дня покоя
+        if (dayKey === 'sat') {
+          const restContainer = document.createElement('div');
+          restContainer.className = 'rest-day-container';
+          restContainer.innerHTML = `
+            День покоя
+            <div class="rest-day-text" id="sabbath-verse"></div>
+          `;
+          content.appendChild(restContainer);
+          return; // Пропускаем добавление обычных занятий для субботы
+        }
+
+        // Фильтруем и сортируем занятия для этого дня
+        const dayEntries = scheduleData
+          .filter(item => item.day === dayKey)
+          .sort((a, b) => {
+            const timeA = a.time.split(':').map(Number);
+            const timeB = b.time.split(':').map(Number);
+            return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
+          });
+
+        // Добавляем каждое занятие
+        dayEntries.forEach(entry => {
+          const entryElement = document.createElement('div');
+          entryElement.className = `entry ${entry.type}`;
+          entryElement.setAttribute('data-id', entry.id);
+          
+          entryElement.innerHTML = `
+            <div class="entry-top">
+              <div class="time">${entry.time}</div>
+              <div class="lesson">${entry.lesson}</div>
+              <div class="students">${entry.students}</div>
+            </div>
+            <div class="entry-actions">
+              <button class="btn-action btn-edit" onclick="editEntry('${entry.id}')">Изменить</button>
+              <button class="btn-action btn-delete" onclick="deleteEntry('${entry.id}')">Удалить</button>
+            </div>
+          `;
+          
+          content.appendChild(entryElement);
+        });
+      });
+
+      // После генерации DOM, обновляем неделю (даты и состояние)
+      updateWeek();
+    }
 
     function toggle(day) {
       const content = document.getElementById('content-' + day);
@@ -757,15 +594,8 @@
     }
 
     function goToCurrentWeek() {
-      // Сохраняем текущее состояние показа уведомления
-      const wasNotificationShown = window.hasShownNotificationOnLoad;
-      
-      // Переходим на текущую неделю
       currentOffset = 0;
       updateWeek();
-      
-      // Восстанавливаем флаг, чтобы уведомление не показывалось повторно
-      window.hasShownNotificationOnLoad = wasNotificationShown;
     }
 
     let currentOffset = 0;
@@ -782,37 +612,6 @@
     const modalTitle = document.getElementById('modalTitle');
     const deleteBtn = document.getElementById('deleteBtn');
 
-    // Инициализация данных из HTML
-    function initScheduleData() {
-      scheduleData = [];
-      const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-      
-      dayKeys.forEach(dayKey => {
-        const container = document.getElementById(`content-${dayKey}`);
-        if (container) {
-          const entries = container.querySelectorAll('.entry');
-          entries.forEach((entry, index) => {
-            const id = `${dayKey}-${index}`;
-            const time = entry.querySelector('.time').textContent;
-            const lesson = entry.querySelector('.lesson').textContent;
-            const students = entry.querySelector('.students').textContent;
-            const type = entry.classList.contains('school') ? 'school' : 
-                        entry.classList.contains('private') ? 'private' : 'other';
-            
-            scheduleData.push({
-              id,
-              day: dayKey,
-              time,
-              lesson,
-              students,
-              type
-            });
-          });
-        }
-      });
-    }
-
-    // Обновление расписания на странице
     function updateWeek() {
       const today = new Date();
       const target = new Date(today);
@@ -904,14 +703,7 @@
 
       if (currentOffset === 0) {
         markCurrentAndPastLessons();
-        // Обновляем информацию о следующем занятии немедленно
         updateNextLessonInfo();
-        
-        // Показываем уведомление только при первой загрузке страницы
-        if (currentOffset === 0 && !window.hasShownNotificationOnLoad) {
-          showDailyNotification();
-          window.hasShownNotificationOnLoad = true;
-        }
       } else {
         document.querySelectorAll('.time-left').forEach(el => el.remove());
         document.querySelectorAll('.entry').forEach(el => {
@@ -927,42 +719,24 @@
       const currentMinute = now.getMinutes();
       const currentTotalMinutes = currentHour * 60 + currentMinute;
 
-      const schedule = {
-        sun: ['10:00'],
-        mon: ['18:00', '19:00'],
-        tue: ['09:55', '10:45', '11:35', '12:25', '19:00'],
-        wed: ['09:55', '10:45', '11:35', '12:25', '13:25', '19:00', '20:00'],
-        thu: ['09:55', '10:45', '11:35', '12:25', '13:25', '18:00', '19:00'],
-        fri: [],
-        sat: []
-      };
+      // Получаем времена занятий для этого дня из scheduleData
+      const dayEntries = scheduleData.filter(item => item.day === day);
+      const times = dayEntries.map(item => item.time).filter(time => time !== 'День'); // Исключаем "День"
 
+      // Продолжительность занятий
       const durations = {
         school: 40,
-        private: 60
+        private: 60,
+        other: 0
       };
 
-      const daySchedules = {
-        sun: ['private'],
-        mon: ['private', 'private'],
-        tue: ['school', 'school', 'school', 'school', 'private'],
-        wed: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
-        thu: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
-        fri: [],
-        sat: []
-      };
-
-      const times = schedule[day] || [];
-      const types = daySchedules[day] || [];
-
-      for (let i = 0; i < times.length; i++) {
-        const [h, m] = times[i].split(':').map(Number);
-        let duration = 0;
-        if (types[i] === 'school') duration = 40;
-        else if (types[i] === 'private') duration = 60;
-        else continue;
-
+      for (const entry of dayEntries) {
+        if (entry.time === 'День') continue; // Пропускаем "День"
+        
+        const [h, m] = entry.time.split(':').map(Number);
+        const duration = durations[entry.type] || 0;
         const lessonEnd = (h * 60 + m) + duration;
+        
         if (lessonEnd > currentTotalMinutes) {
           return false;
         }
@@ -977,47 +751,23 @@
       const currentMinute = now.getMinutes();
       const currentTotalMinutes = currentHour * 60 + currentMinute;
 
-      const schedule = {
-        sun: ['10:00'],
-        mon: ['18:00', '19:00'],
-        tue: ['09:55', '10:45', '11:35', '12:25', '19:00'],
-        wed: ['09:55', '10:45', '11:35', '12:25', '13:25', '19:00', '20:00'],
-        thu: ['09:55', '10:45', '11:35', '12:25', '13:25', '18:00', '19:00'],
-        fri: [],
-        sat: []
-      };
-
-      const durations = {
-        school: 40,
-        private: 60
-      };
-
-      const daySchedules = {
-        sun: ['private'],
-        mon: ['private', 'private'],
-        tue: ['school', 'school', 'school', 'school', 'private'],
-        wed: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
-        thu: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
-        fri: [],
-        sat: []
-      };
-
-      const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-      const dayKey = days[currentDayIndex];
-      const times = schedule[dayKey];
-      const types = daySchedules[dayKey];
-
-      if (!times || times.length === 0) return;
+      const currentDayKey = days[currentDayIndex];
+      const dayEntries = scheduleData.filter(item => item.day === currentDayKey && item.time !== 'День');
 
       document.querySelectorAll('.entry').forEach(el => {
         el.classList.remove('past', 'current');
       });
 
-      const entries = document.querySelectorAll(`#content-${dayKey} .entry`);
+      const entries = document.querySelectorAll(`#content-${currentDayKey} .entry`);
       for (let i = 0; i < entries.length; i++) {
-        const [h, m] = times[i].split(':').map(Number);
+        const entryData = dayEntries[i];
+        if (!entryData) break;
+
+        const [h, m] = entryData.time.split(':').map(Number);
         const lessonStart = h * 60 + m;
-        const lessonEnd = lessonStart + (types[i] === 'school' ? 40 : 60);
+        const duration = entryData.type === 'school' ? 40 : 
+                        entryData.type === 'private' ? 60 : 0;
+        const lessonEnd = lessonStart + duration;
 
         if (currentTotalMinutes >= lessonEnd) {
           entries[i].classList.add('past');
@@ -1032,37 +782,10 @@
     function updateNextLessonInfo() {
       const now = new Date();
       const currentDayIndex = now.getDay();
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
-      const currentTotalMinutes = currentHour * 60 + currentMinute;
+      const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
 
-      const schedule = {
-        sun: ['10:00'],
-        mon: ['18:00', '19:00'],
-        tue: ['09:55', '10:45', '11:35', '12:25', '19:00'],
-        wed: ['09:55', '10:45', '11:35', '12:25', '13:25', '19:00', '20:00'],
-        thu: ['09:55', '10:45', '11:35', '12:25', '13:25', '18:00', '19:00'],
-        fri: [],
-        sat: []
-      };
-
-      const durations = {
-        school: 40,
-        private: 60
-      };
-
-      const daySchedules = {
-        sun: ['private'],
-        mon: ['private', 'private'],
-        tue: ['school', 'school', 'school', 'school', 'private'],
-        wed: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
-        thu: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
-        fri: [],
-        sat: []
-      };
-
-      const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
       const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      const dayNames = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
 
       const target = new Date(now);
       const monday = new Date(target);
@@ -1072,34 +795,28 @@
 
       for (let i = 0; i < 7; i++) {
         const dayKey = dayKeys[i];
-        const times = schedule[dayKey];
-        const types = daySchedules[dayKey];
+        const dayEntries = scheduleData.filter(item => item.day === dayKey);
 
-        for (let j = 0; j < times.length; j++) {
-          const [h, m] = times[j].split(':').map(Number);
+        for (const entry of dayEntries) {
+          if (entry.time === 'День') continue; // Пропускаем "День"
+
+          const [h, m] = entry.time.split(':').map(Number);
           const lessonDate = new Date(monday);
           lessonDate.setDate(monday.getDate() + i - 1);
-
-          if (i === 0) {
-            lessonDate.setDate(lessonDate.getDate() - 1);
-          } else {
-            lessonDate.setDate(monday.getDate() + i - 1);
-          }
+          if (i === 0) lessonDate.setDate(lessonDate.getDate() - 1);
 
           const lessonDateTime = new Date(lessonDate);
           lessonDateTime.setHours(h, m, 0, 0);
 
           if (lessonDateTime > now) {
-            const dayName = days[i];
+            const dayName = dayNames[i];
             const day = String(lessonDate.getDate()).padStart(2, '0');
             const month = String(lessonDate.getMonth() + 1).padStart(2, '0');
             const year = lessonDate.getFullYear();
             const formattedDate = `${day}.${month}.${year}`;
 
             nextLessonBar.textContent = `Следующее занятие в ${h}:${m}, в ${dayName} ${formattedDate}`;
-            
-            // Устанавливаем таймер на первое будущее занятие
-            showTimerOnNextLesson(i, j, lessonDateTime, now);
+            showTimerOnNextLesson(i, entry.id, lessonDateTime, now);
             return;
           }
         }
@@ -1109,34 +826,25 @@
       document.querySelectorAll('.time-left').forEach(el => el.remove());
     }
 
-    function showTimerOnNextLesson(dayIndex, lessonIndex, lessonDateTime, now) {
-      // Сбрасываем все таймеры
+    function showTimerOnNextLesson(dayIndex, entryId, lessonDateTime, now) {
       document.querySelectorAll('.time-left').forEach(el => el.remove());
 
-      // Находим нужный день
       const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
       const dayKey = dayKeys[dayIndex];
       const content = document.getElementById('content-' + dayKey);
       
       if (!content) return;
 
-      // Находим нужное занятие в этом дне
-      const entries = content.querySelectorAll('.entry');
-      const targetEntry = entries[lessonIndex];
-      
+      const targetEntry = document.querySelector(`[data-id="${entryId}"]`);
       if (!targetEntry) return;
 
-      // Вычисляем разницу в миллисекундах, затем в минутах
       const diffMs = lessonDateTime - now;
       const diffMinutes = Math.floor(diffMs / 60000);
-
-      // Проверяем, что разница положительная
       if (diffMinutes <= 0) return;
 
       const hours = Math.floor(diffMinutes / 60);
       const mins = diffMinutes % 60;
 
-      // Создаем элемент таймера
       const span = document.createElement('span');
       span.className = 'time-left';
 
@@ -1148,53 +856,7 @@
         span.textContent = `начнется через ${hours} ч. ${mins} мин.`;
       }
 
-      // Вставляем таймер под временем и уроком, по центру
       targetEntry.appendChild(span);
-    }
-
-    function showDailyNotification() {
-      const today = new Date();
-      const currentDayIndex = today.getDay();
-      const currentOffset = 0;
-      const isCurrentWeek = currentOffset === 0;
-
-      if (!isCurrentWeek) return;
-
-      const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-      const dayKey = days[currentDayIndex];
-      const schedule = {
-        sun: ['10:00'],
-        mon: ['18:00', '19:00'],
-        tue: ['09:55', '10:45', '11:35', '12:25', '19:00'],
-        wed: ['09:55', '10:45', '11:35', '12:25', '13:25', '19:00', '20:00'],
-        thu: ['09:55', '10:45', '11:35', '12:25', '13:25', '18:00', '19:00'],
-        fri: [],
-        sat: []
-      };
-
-      const times = schedule[dayKey] || [];
-      if (times.length === 0) {
-        showNotification("На сегодня занятий нет");
-        return;
-      }
-
-      const now = new Date();
-      const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
-      let pendingCount = 0;
-
-      for (const time of times) {
-        const [h, m] = time.split(':').map(Number);
-        const lessonStart = h * 60 + m;
-        if (lessonStart >= currentTotalMinutes) {
-          pendingCount++;
-        }
-      }
-
-      if (pendingCount === 0) {
-        showNotification("На сегодня все занятия проведены");
-      } else {
-        showNotification(`Вам необходимо провести еще ${pendingCount} занятий`);
-      }
     }
 
     function showNotification(message) {
@@ -1241,11 +903,9 @@
 
     function deleteEntry(id) {
       if (confirm('Вы уверены, что хотите удалить это занятие?')) {
-        // Удаляем из массива
         scheduleData = scheduleData.filter(item => item.id !== id);
-        // Обновляем DOM
+        saveToLocalStorage(); // Сохраняем изменения
         updateScheduleDOM();
-        closeModal();
         showNotification('Занятие удалено');
       }
     }
@@ -1254,6 +914,7 @@
       const id = document.getElementById('editId').value;
       if (id) {
         deleteEntry(id);
+        closeModal();
       }
     }
 
@@ -1274,97 +935,34 @@
         }
       } else {
         // Добавление нового
-        // Генерируем новый ID
-        const dayEntries = scheduleData.filter(item => item.day === day);
-        const newId = `${day}-${dayEntries.length}`;
+        const newId = generateId(day);
         scheduleData.push({ id: newId, day, time, lesson, students, type });
       }
 
-      // Обновляем DOM
+      saveToLocalStorage(); // Сохраняем изменения
       updateScheduleDOM();
       closeModal();
       showNotification(id ? 'Занятие обновлено' : 'Занятие добавлено');
     });
 
-    // Обновление DOM на основе scheduleData
-    function updateScheduleDOM() {
-      const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-      
-      dayKeys.forEach(dayKey => {
-        const container = document.getElementById(`content-${dayKey}`);
-        if (container) {
-          // Очищаем контейнер
-          container.innerHTML = '';
-          
-          // Фильтруем занятия для этого дня
-          const dayEntries = scheduleData.filter(item => item.day === dayKey);
-          
-          // Сортируем по времени
-          dayEntries.sort((a, b) => {
-            const timeA = a.time.split(':').map(Number);
-            const timeB = b.time.split(':').map(Number);
-            return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
-          });
-          
-          // Добавляем занятия обратно
-          dayEntries.forEach(entry => {
-            const entryElement = document.createElement('div');
-            entryElement.className = `entry ${entry.type}`;
-            entryElement.setAttribute('data-id', entry.id);
-            
-            entryElement.innerHTML = `
-              <div class="entry-top">
-                <div class="time">${entry.time}</div>
-                <div class="lesson">${entry.lesson}</div>
-                <div class="students">${entry.students}</div>
-              </div>
-              <div class="entry-actions">
-                <button class="btn-action btn-edit" onclick="editEntry('${entry.id}')">Изменить</button>
-                <button class="btn-action btn-delete" onclick="deleteEntry('${entry.id}')">Удалить</button>
-              </div>
-            `;
-            
-            container.appendChild(entryElement);
-          });
-        }
-      });
-      
-      // Обновляем информацию о занятиях
-      if (currentOffset === 0) {
-        markCurrentAndPastLessons();
-        updateNextLessonInfo();
-      }
-    }
-
-    // Закрытие модального окна по клику вне его
     window.onclick = function(event) {
       if (event.target === modal) {
         closeModal();
       }
     }
 
-    // Флаг для отслеживания, было ли уже показано уведомление при загрузке
-    window.hasShownNotificationOnLoad = false;
-
+    // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function () {
-      // Инициализируем данные
-      initScheduleData();
+      initScheduleData(); // Загружаем данные
+      updateScheduleDOM(); // Генерируем интерфейс
       
-      // Запускаем updateWeek сразу
-      updateWeek();
-      
-      // Вызываем updateNextLessonInfo сразу после updateWeek
-      if (currentOffset === 0) {
-        updateNextLessonInfo();
-        // Показываем уведомление при первой загрузке страницы
-        if (!window.hasShownNotificationOnLoad) {
-          showDailyNotification();
-          window.hasShownNotificationOnLoad = true;
-        }
+      // Уведомление при первой загрузке
+      if (!window.hasShownNotificationOnLoad) {
+        window.hasShownNotificationOnLoad = true;
+        // Здесь можно показать приветственное уведомление
       }
 
-      // Удаляем автоматическое обновление уведомления каждые 5 минут
-      // Оставляем только обновление информации о следующем занятии
+      // Обновление каждую минуту
       setInterval(() => {
         if (currentOffset === 0) {
           updateNextLessonInfo();
