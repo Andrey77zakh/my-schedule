@@ -1,0 +1,1018 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Расписание занятий</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      padding: 15px;
+      margin: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    header {
+      background: #007BFF;
+      color: white;
+      padding: 25px;
+      text-align: center;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+    .sticky-toolbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #007BFF;
+      color: white;
+      padding: 12px 0;
+      text-align: center;
+      font-weight: 600;
+      z-index: 99;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      font-size: 0.95rem;
+    }
+    /* Добавляем отступ сверху у контейнера под фиксированный тулбар */
+    .container {
+      margin-top: 80px; /* Учитываем высоту тулбара и отступ */
+      margin-bottom: 80px;
+      max-width: 900px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .day-header {
+      background: #f0f4ff;
+      color: #333;
+      text-align: center;
+      padding: 16px;
+      margin: 12px 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      text-transform: uppercase;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    .day-header::after {
+      content: ' ▼';
+      font-size: 0.9em;
+      margin-left: 6px;
+    }
+    .day-header.active::after {
+      content: ' ▲';
+    }
+    .day-header.today {
+      background: #d4edff;
+      color: #004085;
+      font-weight: 700;
+      border: 2px solid #007BFF;
+      box-shadow: 0 0 0 3px #cce5ff;
+    }
+    .date-badge {
+      font-size: 0.85rem;
+      color: #666;
+      font-weight: 500;
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: #e0e0e0;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .time-left {
+      font-size: 0.8rem;
+      color: #8E44AD; /* Фиолетовый цвет */
+      font-weight: 500;
+      display: block;
+      margin-top: 6px;
+      letter-spacing: 0.3px;
+      text-align: center;
+      width: 100%;
+    }
+    .entry {
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: white;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      position: relative;
+      flex-direction: column;
+    }
+    .entry-top {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 4px;
+    }
+    .time { font-weight: 600; min-width: 70px; }
+    .lesson { flex: 1; }
+    .students { font-weight: 600; min-width: 100px; text-align: right; }
+    
+    /* Стили для обозначения статуса занятий */
+    .entry.past {
+      background: #f8f9fa;
+      color: #adb5bd;
+      opacity: 0.6;
+      border-left: 3px solid #dee2e6;
+    }
+    .entry.current {
+      background: #e3f2fd;
+      color: #0d47a1;
+      border-left: 3px solid #007BFF;
+      font-weight: 600 !important;
+    }
+    .entry.current .lesson,
+    .entry.current .students {
+      font-weight: 600;
+    }
+    .school { color: #c62828; }
+    .private { color: #1565c0; }
+    .other { color: #000; }
+    .rest-day-container {
+      text-align: center;
+      color: #2e7d32;
+      background: #e8f5e9;
+      border: 2px dashed #4caf50;
+      border-radius: 12px;
+      padding: 20px;
+      font-weight: 600;
+      position: relative;
+    }
+    .rest-day-text {
+      font-style: italic;
+      line-height: 1.6;
+      max-width: 80%;
+      margin: 10px auto;
+      font-size: 0.95rem;
+    }
+    .day-content {
+      display: block;
+    }
+    .day-content.closed {
+      display: none;
+    }
+    .toolbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #f8f9fa;
+      border-top: 1px solid #dee2e6;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 100;
+    }
+    .toolbar button {
+      background: #e9ecef;
+      color: #495057;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex: 1;
+      margin: 0 5px;
+      max-width: 30%;
+    }
+    .toolbar button:hover {
+      background: #dde0e4;
+      transform: translateY(-1px);
+    }
+    .toolbar button.active {
+      background: #007BFF;
+      color: white;
+      font-weight: 600;
+    }
+    .toolbar button.active:hover {
+      background: #0069d9;
+    }
+    /* Стили для всплывающего уведомления */
+    .notification {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(128, 128, 128, 0.9); /* Серый цвет */
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+      max-width: 90%;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 500;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .notification.show {
+      opacity: 1;
+      visibility: visible;
+    }
+  </style>
+</head>
+<body>
+  <!-- Фиксированная панель сверху с информацией о следующем занятии -->
+  <div class="sticky-toolbar" id="next-lesson-bar">
+    Загрузка информации о следующем занятии...
+  </div>
+
+
+  <div class="container">
+    <header><h1>Расписание занятий</h1></header>
+    
+    <div class="schedule">
+
+
+      <!-- Воскресенье -->
+      <div class="day-header" id="header-sun" onclick="toggle('sun')">Воскресенье<span class="date-badge" id="date-sun">31.08.25</span></div>
+      <div class="day-content" id="content-sun">
+        <div class="entry private">
+          <div class="entry-top">
+            <div class="time">10:00</div>
+            <div class="lesson">Французский язык</div>
+            <div class="students">Тереза</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Понедельник -->
+      <div class="day-header" id="header-mon" onclick="toggle('mon')">Понедельник<span class="date-badge" id="date-mon">02.09.25</span></div>
+      <div class="day-content" id="content-mon">
+        <div class="entry private">
+          <div class="entry-top">
+            <div class="time">18:00</div>
+            <div class="lesson">Английский</div>
+            <div class="students">Тереза</div>
+          </div>
+        </div>
+        <div class="entry private">
+          <div class="entry-top">
+            <div class="time">19:00</div>
+            <div class="lesson">Английский</div>
+            <div class="students">Злата</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Вторник -->
+      <div class="day-header" id="header-tue" onclick="toggle('tue')">Вторник<span class="date-badge" id="date-tue">03.09.25</span></div>
+      <div class="day-content" id="content-tue">
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">09:55</div>
+            <div class="lesson">Английский</div>
+            <div class="students">5 класс</div>
+          </div>
+        </div>
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">10:45</div>
+            <div class="lesson">Английский</div>
+            <div class="students">4 класс</div>
+          </div>
+        </div>
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">11:35</div>
+            <div class="lesson">Английский</div>
+            <div class="students">2 класс</div>
+          </div>
+        </div>
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">12:25</div>
+            <div class="lesson">Английский</div>
+            <div class="students">3 класс</div>
+          </div>
+        </div>
+        <div class="entry private">
+          <div class="entry-top">
+            <div class="time">19:00</div>
+            <div class="lesson">Английский</div>
+            <div class="students">Аня</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Среда -->
+      <div class="day-header" id="header-wed" onclick="toggle('wed')">Среда<span class="date-badge" id="date-wed">04.09.25</span></div>
+      <div class="day-content" id="content-wed">
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">09:55</div>
+            <div class="lesson">Английский</div>
+            <div class="students">4 класс</div>
+          </div>
+        </div>
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">10:45</div>
+            <div class="lesson">Английский</div>
+            <div class="students">3 класс</div>
+          </div>
+        </div>
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">11:35</div>
+            <div class="lesson">Английский</div>
+            <div class="students">2 класс</div>
+          </div>
+        </div>
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">12:25</div>
+            <div class="lesson">Английский</div>
+            <div class="students">1 класс</div>
+          </div>
+        </div>
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">13:25</div>
+            <div class="lesson">Английский</div>
+            <div class="students">5 класс</div>
+          </div>
+        </div>
+        <div class="entry private">
+          <div class="entry-top">
+            <div class="time">19:00</div>
+            <div class="lesson">Английский</div>
+            <div class="students">Злата</div>
+          </div>
+        </div>
+        <div class="entry private">
+          <div class="entry-top">
+            <div class="time">20:00</div>
+            <div class="lesson">Французский</div>
+            <div class="students">Тереза</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Четверг -->
+      <div class="day-header" id="header-thu" onclick="toggle('thu')">Четверг<span class="date-badge" id="date-thu">05.09.25</span></div>
+      <div class="day-content" id="content-thu">
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">09:55</div>
+            <div class="lesson">Английский</div>
+            <div class="students">5 класс</div>
+          </div>
+        </div>
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">10:45</div>
+            <div class="lesson">Английский</div>
+            <div class="students">4 класс</div>
+          </div>
+        </div>
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">11:35</div>
+            <div class="lesson">Английский</div>
+            <div class="students">2 класс</div>
+          </div>
+        </div>
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">12:25</div>
+            <div class="lesson">Английский</div>
+            <div class="students">1 класс</div>
+          </div>
+        </div>
+        <div class="entry school">
+          <div class="entry-top">
+            <div class="time">13:25</div>
+            <div class="lesson">Английский</div>
+            <div class="students">3 класс</div>
+          </div>
+        </div>
+        <div class="entry private">
+          <div class="entry-top">
+            <div class="time">18:00</div>
+            <div class="lesson">Английский</div>
+            <div class="students">Злата</div>
+          </div>
+        </div>
+        <div class="entry private">
+          <div class="entry-top">
+            <div class="time">19:00</div>
+            <div class="lesson">Английский</div>
+            <div class="students">Аня</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Пятница -->
+      <div class="day-header" id="header-fri" onclick="toggle('fri')">Пятница<span class="date-badge" id="date-fri">06.09.25</span></div>
+      <div class="day-content" id="content-fri">
+        <div class="entry other">
+          <div class="entry-top">
+            <div class="time">День</div>
+            <div class="lesson">Уборка и учёба</div>
+            <div class="students"></div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Суббота -->
+      <div class="day-header green" id="header-sat" onclick="toggle('sat')">Суббота<span class="date-badge" id="date-sat">07.09.25</span></div>
+      <div class="day-content" id="content-sat">
+        <div class="rest-day-container">
+          День покоя
+          <div class="rest-day-text" id="sabbath-verse"></div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+
+  <div class="toolbar">
+    <button id="btn-prev" onclick="goToWeek(-1)">Предыдущая неделя</button>
+    <button id="btn-current" onclick="goToCurrentWeek()">Эта неделя</button>
+    <button id="btn-next" onclick="goToWeek(1)">Следующая неделя</button>
+  </div>
+
+
+  <!-- Всплывающее уведомление -->
+  <div class="notification" id="notification"></div>
+
+
+  <script>
+    // Стих из Писания о субботе
+    const sabbathVerses = [
+      "Помни день субботний, чтобы святить его; шесть дней работай и делай всякие дела твои, а день седьмой — суббота Господу, Богу твоему: не делай в оный никакого дела ни ты, ни сын твой, ни дочь твоя, ни раб твой, ни рабыня твоя, ни скот твой, ни пришлец, который в жилищах твоих; ибо в шесть дней создал Господь небо и землю, море и всё, что в них, а в день седьмой почил; посему благословил Господь день субботний и освятил его. (Исход 20:8-11)",
+      "Я Господь Бог ваш: по Моим заповедям поступайте, и Мои уставы соблюдайте и исполняйте их. И святите субботы Мои, чтобы они были знамением между Мною и вами, дабы вы знали, что Я Господь Бог ваш. (Иезекииль 20:19-20)",
+      "Наблюдай день субботний, чтобы свято хранить его, как заповедал тебе Господь, Бог твой; шесть дней работай и делай всякие дела твои, а день седьмой — суббота Господу, Богу твоему. Не делай в оный никакого дела, ни ты, ни сын твой, ни дочь твоя, ни раб твой, ни раба твоя, ни вол твой, ни осел твой, ни всякий скот твой, ни пришелец твой, который у тебя, чтобы отдохнул раб твой, и раба твоя и осел твой, как и ты. (Второзаконие 5:12-14)",
+      "Если ты удержишь ногу твою ради субботы от исполнения прихотей твоих во святый день Мой, и будешь называть субботу отрадою, святым днем Господним, чествуемым, и почтишь ее тем, что не будешь заниматься обычными твоими делами, угождать твоей прихоти и пустословить, — то будешь иметь радость в Господе, и Я возведу тебя на высоты земли и дам вкусить тебе наследие Иакова, отца твоего: уста Господни изрекли это. (Исаия 58:13-14)",
+      "И благословил Бог седьмой день, и освятил его, ибо в оный почил от всех дел Своих, которые Бог творил и созидал. (Бытие 2:3)",
+      "И случилось Ему в субботу проходить засеянными полями, и ученики Его дорогою начали срывать колосья. И фарисеи сказали Ему: смотри, что́ они делают в субботу, чего не должно делать? Он сказал им: неужели вы не читали никогда, что́ сделал Давид, когда имел нужду и взалкал сам и бывшие с ним? как вошел он в дом Божий при первосвященнике Авиафаре и ел хлебы предложения, которых не должно было есть никому, кроме священников, и дал и бывшим с ним? И сказал им: суббота для человека, а не человек для субботы; посему Сын Человеческий есть господин и субботы. (От Марка 2:23-28)",
+      "Сколько же лучше человек овцы! Итак можно в субботы делать добро. (От Матфея 12:12)",
+      "Посему для народа Божия еще остается субботство. Ибо кто вошел в покой Его, тот и сам успокоился от дел своих, как и Бог от Своих. (К Евреям 4:9-10)",
+      "Шесть дней можно делать дела, а в седьмой день суббота покоя, священное собрание; никакого дела не делайте; это суббота Господня во всех жилищах ваших. (Левит 23:3)",
+      "Субботы Мои соблюдайте и святилище Мое чтите: Я Господь. (Левит 26:2)",
+      "Итак, постараемся войти в покой оный, чтобы кто по тому же примеру не впал в непокорность. (К Евреям 4:11)",
+      "В одной из синагог учил Он в субботу. Там была женщина, восемнадцать лет имевшая духа немощи: она была скорчена и не могла выпрямиться. Иисус, увидев ее, подозвал и сказал ей: женщина! ты освобождаешься от недуга твоего. И возложил на нее руки, и она тотчас выпрямилась и стала славить Бога. При этом начальник синагоги, негодуя, что Иисус исцелил в субботу, сказал народу: есть шесть дней, в которые должно делать; в те и приходи́те исцеляться, а не в день субботний. Господь сказал ему в ответ: лицемер! не отвязывает ли каждый из вас вола своего или осла от яслей в субботу и не ведет ли поить? сию же дочь Авраамову, которую связал сатана вот уже восемнадцать лет, не надлежало ли освободить от уз сих в день субботний? И когда говорил Он это, все противившиеся Ему стыдились; и весь народ радовался о всех славных делах Его. (От Луки 13:10-17)",
+      "И помни, что ты был рабом в земле Египетской, но Господь, Бог твой, вывел тебя оттуда рукою крепкою и мышцею высокою, потому и повелел тебе Господь, Бог твой, соблюдать день субботний и свято хранить его. (Второзаконие 5:15)"
+    ];
+
+
+    function toggle(day) {
+      const content = document.getElementById('content-' + day);
+      const header = document.getElementById('header-' + day);
+      if (!content || !header) return;
+
+
+      const isClosed = content.classList.contains('closed');
+      if (isClosed) {
+        content.classList.remove('closed');
+        header.classList.remove('active');
+      } else {
+        content.classList.add('closed');
+        header.classList.add('active');
+      }
+    }
+
+
+    function goToWeek(offset) {
+      currentOffset = offset;
+      updateWeek();
+    }
+
+
+    function goToCurrentWeek() {
+      // Сохраняем текущее состояние показа уведомления
+      const wasNotificationShown = window.hasShownNotificationOnLoad;
+      
+      // Переходим на текущую неделю
+      currentOffset = 0;
+      updateWeek();
+      
+      // Восстанавливаем флаг, чтобы уведомление не показывалось повторно
+      window.hasShownNotificationOnLoad = wasNotificationShown;
+    }
+
+
+    let currentOffset = 0;
+    const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const buttons = {
+      prev: document.getElementById('btn-prev'),
+      current: document.getElementById('btn-current'),
+      next: document.getElementById('btn-next')
+    };
+    const nextLessonBar = document.getElementById('next-lesson-bar');
+    const notification = document.getElementById('notification');
+
+
+    function updateWeek() {
+      const today = new Date();
+      const target = new Date(today);
+      target.setDate(today.getDate() + currentOffset * 7);
+
+
+      const dayOfWeek = target.getDay();
+      const monday = new Date(target);
+      const diff = target.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+      monday.setDate(diff);
+      monday.setHours(0, 0, 0, 0);
+
+
+      for (let i = 0; i < 7; i++) {
+        let date;
+        if (i === 0) {
+          date = new Date(monday);
+          date.setDate(monday.getDate() - 1);
+        } else {
+          date = new Date(monday);
+          date.setDate(monday.getDate() + i - 1);
+        }
+
+
+        const dayKey = days[i];
+        const dateElement = document.getElementById('date-' + dayKey);
+        if (dateElement) {
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = String(date.getFullYear()).slice(-2);
+          dateElement.textContent = `${day}.${month}.${year}`;
+        }
+      }
+
+
+      const todayIndex = new Date().getDay();
+      const isCurrentWeek = currentOffset === 0;
+
+
+      const currentDayKey = days[todayIndex];
+      for (let i = 0; i < 7; i++) {
+        const dayKey = days[i];
+        const header = document.getElementById('header-' + dayKey);
+        if (header) {
+          header.classList.remove('today');
+          if (isCurrentWeek && dayKey === currentDayKey) {
+            header.classList.add('today');
+          }
+        }
+
+
+        const content = document.getElementById('content-' + dayKey);
+        if (content) {
+          if (currentOffset !== 0) {
+            content.classList.remove('closed');
+            header.classList.remove('active');
+          } else {
+            if (i < todayIndex) {
+              content.classList.add('closed');
+              document.getElementById('header-' + dayKey).classList.add('active');
+            } else if (i === todayIndex) {
+              const allLessonsEnded = areAllLessonsEnded(dayKey);
+              if (allLessonsEnded) {
+                content.classList.add('closed');
+                header.classList.add('active');
+              } else {
+                content.classList.remove('closed');
+                header.classList.remove('active');
+              }
+            } else {
+              content.classList.remove('closed');
+              header.classList.remove('active');
+            }
+          }
+        }
+      }
+
+
+      buttons.prev.classList.remove('active');
+      buttons.current.classList.remove('active');
+      buttons.next.classList.remove('active');
+
+
+      if (currentOffset === -1) {
+        buttons.prev.classList.add('active');
+      } else if (currentOffset === 0) {
+        buttons.current.classList.add('active');
+      } else if (currentOffset === 1) {
+        buttons.next.classList.add('active');
+      }
+
+
+      const verseElement = document.getElementById('sabbath-verse');
+      if (verseElement) {
+        const randomIndex = Math.floor(Math.random() * sabbathVerses.length);
+        verseElement.textContent = sabbathVerses[randomIndex];
+      }
+
+
+      if (currentOffset === 0) {
+        markCurrentAndPastLessons();
+        // Обновляем информацию о следующем занятии немедленно
+        updateNextLessonInfo();
+        
+        // Показываем уведомление только при первой загрузке страницы
+        if (currentOffset === 0 && !window.hasShownNotificationOnLoad) {
+          showDailyNotification();
+          window.hasShownNotificationOnLoad = true;
+        }
+      } else {
+        document.querySelectorAll('.time-left').forEach(el => el.remove());
+        document.querySelectorAll('.entry').forEach(el => {
+          el.classList.remove('past', 'current');
+        });
+        nextLessonBar.textContent = 'Перейдите на текущую неделю';
+      }
+    }
+
+
+    function areAllLessonsEnded(day) {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const currentTotalMinutes = currentHour * 60 + currentMinute;
+
+
+      const schedule = {
+        sun: ['10:00'],
+        mon: ['18:00', '19:00'],
+        tue: ['09:55', '10:45', '11:35', '12:25', '19:00'],
+        wed: ['09:55', '10:45', '11:35', '12:25', '13:25', '19:00', '20:00'],
+        thu: ['09:55', '10:45', '11:35', '12:25', '13:25', '18:00', '19:00'],
+        fri: [],
+        sat: []
+      };
+
+
+      const durations = {
+        school: 40,
+        private: 60
+      };
+
+
+      const daySchedules = {
+        sun: ['private'],
+        mon: ['private', 'private'],
+        tue: ['school', 'school', 'school', 'school', 'private'],
+        wed: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
+        thu: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
+        fri: [],
+        sat: []
+      };
+
+
+      const times = schedule[day] || [];
+      const types = daySchedules[day] || [];
+
+
+      for (let i = 0; i < times.length; i++) {
+        const [h, m] = times[i].split(':').map(Number);
+        let duration = 0;
+        if (types[i] === 'school') duration = 40;
+        else if (types[i] === 'private') duration = 60;
+        else continue;
+
+
+        const lessonEnd = (h * 60 + m) + duration;
+        if (lessonEnd > currentTotalMinutes) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+
+    function markCurrentAndPastLessons() {
+      const now = new Date();
+      const currentDayIndex = now.getDay();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const currentTotalMinutes = currentHour * 60 + currentMinute;
+
+
+      const schedule = {
+        sun: ['10:00'],
+        mon: ['18:00', '19:00'],
+        tue: ['09:55', '10:45', '11:35', '12:25', '19:00'],
+        wed: ['09:55', '10:45', '11:35', '12:25', '13:25', '19:00', '20:00'],
+        thu: ['09:55', '10:45', '11:35', '12:25', '13:25', '18:00', '19:00'],
+        fri: [],
+        sat: []
+      };
+
+
+      const durations = {
+        school: 40,
+        private: 60
+      };
+
+
+      const daySchedules = {
+        sun: ['private'],
+        mon: ['private', 'private'],
+        tue: ['school', 'school', 'school', 'school', 'private'],
+        wed: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
+        thu: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
+        fri: [],
+        sat: []
+      };
+
+
+      const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      const dayKey = days[currentDayIndex];
+      const times = schedule[dayKey];
+      const types = daySchedules[dayKey];
+
+
+      if (!times || times.length === 0) return;
+
+
+      document.querySelectorAll('.entry').forEach(el => {
+        el.classList.remove('past', 'current');
+      });
+
+
+      const entries = document.querySelectorAll(`#content-${dayKey} .entry`);
+      for (let i = 0; i < entries.length; i++) {
+        const [h, m] = times[i].split(':').map(Number);
+        const lessonStart = h * 60 + m;
+        const lessonEnd = lessonStart + (types[i] === 'school' ? 40 : 60);
+
+
+        if (currentTotalMinutes >= lessonEnd) {
+          entries[i].classList.add('past');
+        } else if (currentTotalMinutes >= lessonStart && currentTotalMinutes < lessonEnd) {
+          entries[i].classList.add('current');
+        } else {
+          break;
+        }
+      }
+    }
+
+
+    function updateNextLessonInfo() {
+      const now = new Date();
+      const currentDayIndex = now.getDay();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const currentTotalMinutes = currentHour * 60 + currentMinute;
+
+
+      const schedule = {
+        sun: ['10:00'],
+        mon: ['18:00', '19:00'],
+        tue: ['09:55', '10:45', '11:35', '12:25', '19:00'],
+        wed: ['09:55', '10:45', '11:35', '12:25', '13:25', '19:00', '20:00'],
+        thu: ['09:55', '10:45', '11:35', '12:25', '13:25', '18:00', '19:00'],
+        fri: [],
+        sat: []
+      };
+
+
+      const durations = {
+        school: 40,
+        private: 60
+      };
+
+
+      const daySchedules = {
+        sun: ['private'],
+        mon: ['private', 'private'],
+        tue: ['school', 'school', 'school', 'school', 'private'],
+        wed: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
+        thu: ['school', 'school', 'school', 'school', 'school', 'private', 'private'],
+        fri: [],
+        sat: []
+      };
+
+
+      const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+      const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+
+      const target = new Date(now);
+      const monday = new Date(target);
+      const diff = target.getDate() - (target.getDay() === 0 ? 6 : target.getDay() - 1);
+      monday.setDate(diff);
+      monday.setHours(0, 0, 0, 0);
+
+
+      for (let i = 0; i < 7; i++) {
+        const dayKey = dayKeys[i];
+        const times = schedule[dayKey];
+        const types = daySchedules[dayKey];
+
+
+        for (let j = 0; j < times.length; j++) {
+          const [h, m] = times[j].split(':').map(Number);
+          const lessonDate = new Date(monday);
+          lessonDate.setDate(monday.getDate() + i - 1);
+
+
+          if (i === 0) {
+            lessonDate.setDate(lessonDate.getDate() - 1);
+          } else {
+            lessonDate.setDate(monday.getDate() + i - 1);
+          }
+
+
+          const lessonDateTime = new Date(lessonDate);
+          lessonDateTime.setHours(h, m, 0, 0);
+
+
+          if (lessonDateTime > now) {
+            const dayName = days[i];
+            const day = String(lessonDate.getDate()).padStart(2, '0');
+            const month = String(lessonDate.getMonth() + 1).padStart(2, '0');
+            const year = lessonDate.getFullYear();
+            const formattedDate = `${day}.${month}.${year}`;
+
+
+            nextLessonBar.textContent = `Следующее занятие в ${h}:${m}, ${dayName} ${formattedDate}`;
+            
+            // Устанавливаем таймер на первое будущее занятие
+            showTimerOnNextLesson(i, j, lessonDateTime, now);
+            return;
+          }
+        }
+      }
+
+
+      nextLessonBar.textContent = 'На этой неделе занятий больше нет';
+      document.querySelectorAll('.time-left').forEach(el => el.remove());
+    }
+
+
+    function showTimerOnNextLesson(dayIndex, lessonIndex, lessonDateTime, now) {
+      // Сбрасываем все таймеры
+      document.querySelectorAll('.time-left').forEach(el => el.remove());
+
+
+      // Находим нужный день
+      const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      const dayKey = dayKeys[dayIndex];
+      const content = document.getElementById('content-' + dayKey);
+      
+      if (!content) return;
+
+
+      // Находим нужное занятие в этом дне
+      const entries = content.querySelectorAll('.entry');
+      const targetEntry = entries[lessonIndex];
+      
+      if (!targetEntry) return;
+
+
+      // Вычисляем разницу в миллисекундах, затем в минутах
+      const diffMs = lessonDateTime - now;
+      const diffMinutes = Math.floor(diffMs / 60000);
+
+
+      // Проверяем, что разница положительная
+      if (diffMinutes <= 0) return;
+
+
+      const hours = Math.floor(diffMinutes / 60);
+      const mins = diffMinutes % 60;
+
+
+      // Создаем элемент таймера
+      const span = document.createElement('span');
+      span.className = 'time-left';
+
+
+      if (hours === 0) {
+        span.textContent = `Начнётся через ${mins} мин.`;
+      } else if (mins === 0) {
+        span.textContent = `Начнётся через ${hours} ч.`;
+      } else {
+        span.textContent = `Начнётся через ${hours} ч. ${mins} мин.`;
+      }
+
+
+      // Вставляем таймер под временем и уроком, по центру
+      targetEntry.appendChild(span);
+    }
+
+
+    function showDailyNotification() {
+      const today = new Date();
+      const currentDayIndex = today.getDay();
+      const currentOffset = 0;
+      const isCurrentWeek = currentOffset === 0;
+
+
+      if (!isCurrentWeek) return;
+
+
+      const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      const dayKey = days[currentDayIndex];
+      const schedule = {
+        sun: ['10:00'],
+        mon: ['18:00', '19:00'],
+        tue: ['09:55', '10:45', '11:35', '12:25', '19:00'],
+        wed: ['09:55', '10:45', '11:35', '12:25', '13:25', '19:00', '20:00'],
+        thu: ['09:55', '10:45', '11:35', '12:25', '13:25', '18:00', '19:00'],
+        fri: [],
+        sat: []
+      };
+
+
+      const times = schedule[dayKey] || [];
+      if (times.length === 0) {
+        showNotification("На сегодня занятий нет");
+        return;
+      }
+
+
+      const now = new Date();
+      const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+      let pendingCount = 0;
+
+
+      for (const time of times) {
+        const [h, m] = time.split(':').map(Number);
+        const lessonStart = h * 60 + m;
+        if (lessonStart >= currentTotalMinutes) {
+          pendingCount++;
+        }
+      }
+
+
+      if (pendingCount === 0) {
+        showNotification("На сегодня все занятия проведены");
+      } else {
+        showNotification(`Сегодня необходимо провести еще ${pendingCount} занятий`);
+      }
+    }
+
+
+    function showNotification(message) {
+      const notif = document.getElementById('notification');
+      notif.textContent = message;
+      notif.classList.add('show');
+
+
+      setTimeout(() => {
+        notif.classList.remove('show');
+      }, 5000);
+    }
+
+
+    // Флаг для отслеживания, было ли уже показано уведомление при загрузке
+    window.hasShownNotificationOnLoad = false;
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Запускаем updateWeek сразу
+      updateWeek();
+      
+      // Вызываем updateNextLessonInfo сразу после updateWeek
+      if (currentOffset === 0) {
+        updateNextLessonInfo();
+        // Показываем уведомление при первой загрузке страницы
+        if (!window.hasShownNotificationOnLoad) {
+          showDailyNotification();
+          window.hasShownNotificationOnLoad = true;
+        }
+      }
+
+
+      // Удаляем автоматическое обновление уведомления каждые 5 минут
+      // Оставляем только обновление информации о следующем занятии
+      setInterval(() => {
+        if (currentOffset === 0) {
+          updateNextLessonInfo();
+        }
+      }, 60000);
+    });
+  </script>
+</body>
+</html>
