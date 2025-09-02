@@ -100,8 +100,8 @@
       display: block;
       margin-top: 6px;
       letter-spacing: 0.3px;
-      text-align: center;
       width: 100%;
+      text-align: left;
     }
     .entry {
       display: flex;
@@ -319,25 +319,30 @@
     .btn:hover {
       opacity: 0.9;
     }
-    .entry-actions {
+    /* Стили для иконок действий */
+    .action-icons {
       display: flex;
-      gap: 5px;
-      margin-top: 6px;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
     }
-    .btn-action {
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      border: none;
-      border-radius: 4px;
+    .action-icon {
+      width: 20px;
+      height: 20px;
       cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s;
     }
-    .btn-edit {
-      background: #ffc107;
-      color: #212529;
+    .action-icon:hover {
+      opacity: 1;
     }
-    .btn-delete {
-      background: #dc3545;
-      color: white;
+    .action-icon.edit {
+      filter: brightness(0) saturate(100%) invert(65%) sepia(9%) saturate(526%) hue-rotate(192deg) brightness(90%) contrast(89%);
+    }
+    .action-icon.delete {
+      filter: brightness(0) saturate(100%) invert(27%) sepia(97%) saturate(7497%) hue-rotate(358deg) brightness(91%) contrast(105%);
     }
   </style>
 </head>
@@ -431,13 +436,9 @@
       "И помни, что ты был рабом в земле Египетской, но Господь, Бог твой, вывел тебя оттуда рукою крепкою и мышцею высокою, потому и повелел тебе Господь, Бог твой, соблюдать день субботний и свято хранить его. (Второзаконие 5:15)"
     ];
 
-    // Ключ для localStorage
     const STORAGE_KEY = 'scheduleData_v1';
-    
-    // Массив для хранения всех занятий
     let scheduleData = [];
 
-    // Инициализация: загрузка данных из localStorage или установка данных по умолчанию
     function initScheduleData() {
       const savedData = localStorage.getItem(STORAGE_KEY);
       if (savedData) {
@@ -446,16 +447,13 @@
           console.log('Данные загружены из localStorage');
         } catch (e) {
           console.error('Ошибка при парсинге данных из localStorage:', e);
-          // Если данные повреждены, используем данные по умолчанию
           scheduleData = getDefaultSchedule();
         }
       } else {
-        // Данные по умолчанию из PDF
         scheduleData = getDefaultSchedule();
       }
     }
 
-    // Получение расписания по умолчанию
     function getDefaultSchedule() {
       return [
         { id: 'sun-0', day: 'sun', time: '10:00', lesson: 'Французский', students: 'Тереза', type: 'private' },
@@ -484,7 +482,6 @@
       ];
     }
 
-    // Сохранение данных в localStorage
     function saveToLocalStorage() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(scheduleData));
@@ -495,16 +492,14 @@
       }
     }
 
-    // Генерация нового уникального ID
     function generateId(day) {
       const dayEntries = scheduleData.filter(item => item.day === day);
       return `${day}-${dayEntries.length}`;
     }
 
-    // Обновление DOM на основе scheduleData
     function updateScheduleDOM() {
       const container = document.getElementById('schedule-container');
-      container.innerHTML = ''; // Очищаем контейнер
+      container.innerHTML = '';
 
       const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
       const dayNames = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
@@ -512,7 +507,6 @@
       dayKeys.forEach((dayKey, index) => {
         const dayName = dayNames[index];
         
-        // Создаем заголовок дня
         const header = document.createElement('div');
         header.className = 'day-header';
         header.id = `header-${dayKey}`;
@@ -520,13 +514,11 @@
         header.innerHTML = `${dayName}<span class="date-badge" id="date-${dayKey}">--.--.--</span>`;
         container.appendChild(header);
 
-        // Создаем контент дня
         const content = document.createElement('div');
         content.className = 'day-content';
         content.id = `content-${dayKey}`;
         container.appendChild(content);
 
-        // Если это суббота, добавляем контейнер дня покоя
         if (dayKey === 'sat') {
           const restContainer = document.createElement('div');
           restContainer.className = 'rest-day-container';
@@ -535,10 +527,9 @@
             <div class="rest-day-text" id="sabbath-verse"></div>
           `;
           content.appendChild(restContainer);
-          return; // Пропускаем добавление обычных занятий для субботы
+          return;
         }
 
-        // Фильтруем и сортируем занятия для этого дня
         const dayEntries = scheduleData
           .filter(item => item.day === dayKey)
           .sort((a, b) => {
@@ -547,7 +538,6 @@
             return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
           });
 
-        // Добавляем каждое занятие
         dayEntries.forEach(entry => {
           const entryElement = document.createElement('div');
           entryElement.className = `entry ${entry.type}`;
@@ -559,9 +549,12 @@
               <div class="lesson">${entry.lesson}</div>
               <div class="students">${entry.students}</div>
             </div>
-            <div class="entry-actions">
-              <button class="btn-action btn-edit" onclick="editEntry('${entry.id}')">Изменить</button>
-              <button class="btn-action btn-delete" onclick="deleteEntry('${entry.id}')">Удалить</button>
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: flex-start;">
+              <div class="time-left"></div>
+              <div class="action-icons">
+                <img src="https://img.icons8.com/ios-filled/50/000000/edit.png" class="action-icon edit" onclick="editEntry('${entry.id}')" alt="Изменить">
+                <img src="https://img.icons8.com/ios-filled/50/000000/delete.png" class="action-icon delete" onclick="deleteEntry('${entry.id}')" alt="Удалить">
+              </div>
             </div>
           `;
           
@@ -569,7 +562,6 @@
         });
       });
 
-      // После генерации DOM, обновляем неделю (даты и состояние)
       updateWeek();
     }
 
@@ -719,11 +711,9 @@
       const currentMinute = now.getMinutes();
       const currentTotalMinutes = currentHour * 60 + currentMinute;
 
-      // Получаем времена занятий для этого дня из scheduleData
       const dayEntries = scheduleData.filter(item => item.day === day);
-      const times = dayEntries.map(item => item.time).filter(time => time !== 'День'); // Исключаем "День"
+      const times = dayEntries.map(item => item.time).filter(time => time !== 'День');
 
-      // Продолжительность занятий
       const durations = {
         school: 40,
         private: 60,
@@ -731,7 +721,7 @@
       };
 
       for (const entry of dayEntries) {
-        if (entry.time === 'День') continue; // Пропускаем "День"
+        if (entry.time === 'День') continue;
         
         const [h, m] = entry.time.split(':').map(Number);
         const duration = durations[entry.type] || 0;
@@ -798,7 +788,7 @@
         const dayEntries = scheduleData.filter(item => item.day === dayKey);
 
         for (const entry of dayEntries) {
-          if (entry.time === 'День') continue; // Пропускаем "День"
+          if (entry.time === 'День') continue;
 
           const [h, m] = entry.time.split(':').map(Number);
           const lessonDate = new Date(monday);
@@ -856,7 +846,11 @@
         span.textContent = `начнется через ${hours} ч. ${mins} мин.`;
       }
 
-      targetEntry.appendChild(span);
+      // Добавляем таймер в левую часть
+      const timeLeftContainer = targetEntry.querySelector('.time-left');
+      if (timeLeftContainer) {
+        timeLeftContainer.appendChild(span);
+      }
     }
 
     function showNotification(message) {
@@ -869,7 +863,6 @@
       }, 5000);
     }
 
-    // Функции для модального окна
     function openAddModal() {
       modalTitle.textContent = 'Добавить занятие';
       editForm.reset();
@@ -904,7 +897,7 @@
     function deleteEntry(id) {
       if (confirm('Вы уверены, что хотите удалить это занятие?')) {
         scheduleData = scheduleData.filter(item => item.id !== id);
-        saveToLocalStorage(); // Сохраняем изменения
+        saveToLocalStorage();
         updateScheduleDOM();
         showNotification('Занятие удалено');
       }
@@ -928,18 +921,16 @@
       const type = document.getElementById('editType').value;
 
       if (id) {
-        // Редактирование
         const index = scheduleData.findIndex(item => item.id === id);
         if (index !== -1) {
           scheduleData[index] = { id, day, time, lesson, students, type };
         }
       } else {
-        // Добавление нового
         const newId = generateId(day);
         scheduleData.push({ id: newId, day, time, lesson, students, type });
       }
 
-      saveToLocalStorage(); // Сохраняем изменения
+      saveToLocalStorage();
       updateScheduleDOM();
       closeModal();
       showNotification(id ? 'Занятие обновлено' : 'Занятие добавлено');
@@ -951,18 +942,14 @@
       }
     }
 
-    // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function () {
-      initScheduleData(); // Загружаем данные
-      updateScheduleDOM(); // Генерируем интерфейс
+      initScheduleData();
+      updateScheduleDOM();
       
-      // Уведомление при первой загрузке
       if (!window.hasShownNotificationOnLoad) {
         window.hasShownNotificationOnLoad = true;
-        // Здесь можно показать приветственное уведомление
       }
 
-      // Обновление каждую минуту
       setInterval(() => {
         if (currentOffset === 0) {
           updateNextLessonInfo();
