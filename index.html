@@ -30,6 +30,10 @@
     header h1 {
       font-size: 1.8rem;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0;
     }
     .sticky-toolbar {
       position: fixed;
@@ -95,7 +99,7 @@
     }
     .time-left {
       font-size: 0.8rem;
-      color: #8E44AD; /* Фиолетовый цвет */
+      color: #8E44AD;
       font-weight: 500;
       letter-spacing: 0.3px;
     }
@@ -315,19 +319,17 @@
     .btn:hover {
       opacity: 0.9;
     }
-    /* Контейнер для нижней строки */
     .entry-bottom {
       display: flex;
       justify-content: space-between;
       width: 100%;
       margin-top: 4px;
     }
-    /* Стили для иконок действий */
     .actions-container {
       display: flex;
-      flex-direction: row; /* Иконки в строку */
-      gap: 8px; /* Расстояние между иконками */
-      align-items: center; /* Выравнивание по центру по вертикали */
+      flex-direction: row;
+      gap: 8px;
+      align-items: center;
     }
     .action-icon {
       width: 18px;
@@ -345,6 +347,57 @@
     .action-icon.delete {
       filter: brightness(0) saturate(100%) invert(27%) sepia(97%) saturate(7497%) hue-rotate(358deg) brightness(91%) contrast(105%);
     }
+
+    /* === УЧЕБНЫЙ КАЛЕНДАРЬ: ПО ЦЕНТРУ, НА ВЕСЬ ЭКРАН === */
+    #calendarModal {
+      display: none;
+      position: fixed;
+      z-index: 1001;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    #calendarModal .modal-content {
+      width: 95%;
+      height: 90vh;
+      max-width: none;
+      margin: 0;
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    #calendarModal .modal-header {
+      padding: 14px 20px;
+      background: #007BFF;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1rem;
+      border: none;
+    }
+
+    #calendarModal .modal-header .close {
+      color: white;
+      font-size: 1.6rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #calendarModal iframe {
+      flex: 1;
+      background: white;
+      border: none;
+    }
   </style>
 </head>
 <body>
@@ -353,16 +406,24 @@
   </div>
 
   <div class="container">
-    <header><h1>Расписание занятий</h1></header>
+    <header>
+      <h1 style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        Расписание занятий
+        <span onclick="openCalendarModal()" style="cursor: pointer; font-size: 1.4rem;">📅</span>
+      </h1>
+    </header>
+
     <div class="schedule" id="schedule-container">
       <!-- Содержимое будет генерироваться динамически -->
     </div>
   </div>
 
+  <!-- Кнопка добавления -->
   <div style="position: fixed; bottom: 90px; right: 20px; z-index: 101;">
     <button class="btn btn-primary" onclick="openAddModal()">+</button>
   </div>
 
+  <!-- Модальное окно редактирования -->
   <div id="editModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -403,21 +464,51 @@
             <option value="other">Другое</option>
           </select>
         </div>
+
+        <div class="form-group" id="repeat-group" style="display: none; padding: 12px 0; border-top: 1px solid #eee; margin-top: 10px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">
+            Применить ко:
+          </label>
+          <label style="display: inline-block; margin-right: 16px; cursor: pointer;">
+            <input type="radio" name="applyTo" value="this" checked>
+            <span style="font-size: 0.95rem;">Только это занятие</span>
+          </label>
+          <label style="display: inline-block; cursor: pointer;">
+            <input type="radio" name="applyTo" value="all">
+            <span style="font-size: 0.95rem;">Все повторяющиеся занятия</span>
+          </label>
+          <div style="font-size: 0.85rem; color: #666; margin-top: 6px;">
+            Будут затронуты все занятия с тем же днём недели и временем
+          </div>
+        </div>
+
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" onclick="closeModal()">Отмена</button>
-          <button type="button" class="btn btn-danger" id="deleteBtn" onclick="confirmDelete()">Удалить</button>
           <button type="submit" class="btn btn-primary">Сохранить</button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- Модальное окно учебного календаря -->
+  <div id="calendarModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Учебный календарь 2025–2026</h2>
+        <span class="close" onclick="closeCalendarModal()">&times;</span>
+      </div>
+      <iframe id="calendarFrame" src="calendar.html" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <!-- Панель навигации по неделям -->
   <div class="toolbar">
     <button id="btn-prev" onclick="goToWeek(-1)">Предыдущая неделя</button>
     <button id="btn-current" onclick="goToCurrentWeek()">Эта неделя</button>
     <button id="btn-next" onclick="goToWeek(1)">Следующая неделя</button>
   </div>
 
+  <!-- Уведомление -->
   <div class="notification" id="notification"></div>
 
   <script>
@@ -433,7 +524,7 @@
       "Шесть дней можно делать дела, а в седьмой день суббота покоя, священное собрание; никакого дела не делайте; это суббота Господня во всех жилищах ваших. (Левит 23:3)",
       "Субботы Мои соблюдайте и святилище Мое чтите: Я Господь. (Левит 26:2)",
       "Итак, постараемся войти в покой оный, чтобы кто по тому же примеру не впал в непокорность. (К Евреям 4:11)",
-      "В одной из синагог учил Он в субботу. Там была женщина, восемнадцать лет имевшая духа немощи: она была скорчена и не могла выпрямиться. Иисус, увидев ее, подозвал и сказал ей: женщина! ты освобождаешься от недуга твоего. И возложил на нее руки, и она тотчас выпрямилась и стала славить Бога. При этом начальник синагоги, негодуя, что Иисус исцелил в субботу, сказал народу: есть шесть дней, в которые должно делать; в те и приходи́те исцеляться, а не в день субботний. Господь сказал ему в ответ: лицемер! не отвязывает ли каждый из вас вола своего или осла от яслей в субботу и не ведет ли поить? сию же дочь Авраамову, которую связал сатана вот уже восемнадцать лет, не надлежало ли освободить от уз сих в день субботний? И когда говорил Он это, все противившиеся Ему стыдились; и весь народ радовался о всех славных делах Его. (От Луки 13:10-17)",
+      "В одной из синагог учил Он в субботу. Там была женщина, восемнадцать лет имевшая духа немощи: она была скорчена и не могла выпрямиться. Иисус, увидев ее, подозвал и сказал ей: женщина! ты освобождаешься от недуга твоего. И возложил на нее руки, и она тотчас выпрямилась и стала славить Бога. При этом начальник синагоги, негодуя, что Иисус исцелил в субботу, сказал народу: есть шесть дней, в которые должно делать; в те и приходи́те исцеляться, а не в день субботний. Господь сказал ему в ответ: лицемер! не отвязывает ли каждый из вас вола своего или осла от яслей в субботу и не ведет ли поить? сию же дочь Авраамову, которую связал сатана вот уже восемнадцать лет, не надлежало ли освободить от уз сих в день субботний? И когда говорил Он это, все противившиеся ему стыдились; и весь народ радовался о всех славных делах Его. (От Луки 13:10-17)",
       "И помни, что ты был рабом в земле Египетской, но Господь, Бог твой, вывел тебя оттуда рукою крепкою и мышцею высокою, потому и повелел тебе Господь, Бог твой, соблюдать день субботний и свято хранить его. (Второзаконие 5:15)"
     ];
 
@@ -806,7 +897,8 @@
             const year = lessonDate.getFullYear();
             const formattedDate = `${day}.${month}.${year}`;
 
-            nextLessonBar.textContent = `Следующее занятие в ${h}:${m}, ${dayName} ${formattedDate}`;
+            const formattedTime = `${h}:${String(m).padStart(2, '0')}`;
+            nextLessonBar.textContent = `Следующее занятие в ${formattedTime}, ${dayName} ${formattedDate}`;
             showTimerOnNextLesson(i, entry.id, lessonDateTime, now);
             return;
           }
@@ -837,7 +929,7 @@
       const mins = diffMinutes % 60;
 
       const span = document.createElement('span');
-      span.className = 'time-left'; // Класс возвращен
+      span.className = 'time-left';
 
       if (hours === 0) {
         span.textContent = `Начнётся через ${mins} мин.`;
@@ -847,7 +939,6 @@
         span.textContent = `Начнётся через ${hours} ч. ${mins} мин.`;
       }
 
-      // Добавляем таймер в левый контейнер
       const timerContainer = targetEntry.querySelector('.timer-container');
       if (timerContainer) {
         timerContainer.appendChild(span);
@@ -868,7 +959,7 @@
       modalTitle.textContent = 'Добавить занятие';
       editForm.reset();
       document.getElementById('editId').value = '';
-      deleteBtn.style.display = 'none';
+      document.getElementById('repeat-group').style.display = 'none';
       modal.style.display = 'block';
     }
 
@@ -880,7 +971,7 @@
       document.getElementById('editLesson').value = entry.lesson;
       document.getElementById('editStudents').value = entry.students;
       document.getElementById('editType').value = entry.type;
-      deleteBtn.style.display = 'inline-block';
+      document.getElementById('repeat-group').style.display = 'block';
       modal.style.display = 'block';
     }
 
@@ -896,19 +987,14 @@
     }
 
     function deleteEntry(id) {
-      if (confirm('Вы уверены, что хотите удалить это занятие?')) {
-        scheduleData = scheduleData.filter(item => item.id !== id);
-        saveToLocalStorage();
-        updateScheduleDOM();
-        showNotification('Занятие удалено');
-      }
-    }
-
-    function confirmDelete() {
-      const id = document.getElementById('editId').value;
-      if (id) {
-        deleteEntry(id);
-        closeModal();
+      const entry = scheduleData.find(item => item.id === id);
+      if (entry) {
+        if (confirm('Удалить только это занятие?')) {
+          scheduleData = scheduleData.filter(item => item.id !== id);
+          saveToLocalStorage();
+          updateScheduleDOM();
+          showNotification('Занятие удалено');
+        }
       }
     }
 
@@ -921,25 +1007,89 @@
       const students = document.getElementById('editStudents').value;
       const type = document.getElementById('editType').value;
 
-      if (id) {
-        const index = scheduleData.findIndex(item => item.id === id);
-        if (index !== -1) {
-          scheduleData[index] = { id, day, time, lesson, students, type };
-        }
-      } else {
-        const newId = generateId(day);
-        scheduleData.push({ id: newId, day, time, lesson, students, type });
+      const isEditing = id !== '';
+      let applyTo = 'this';
+      if (isEditing) {
+        applyTo = document.querySelector('input[name="applyTo"]:checked').value;
       }
 
-      saveToLocalStorage();
-      updateScheduleDOM();
-      closeModal();
-      showNotification(id ? 'Занятие обновлено' : 'Занятие добавлено');
+      if (isEditing && applyTo === 'all') {
+        scheduleData = scheduleData.filter(item => !(item.day === day && item.time === time));
+        saveToLocalStorage();
+        updateScheduleDOM();
+        closeModal();
+        showNotification('Все повторяющиеся занятия удалены');
+      } 
+      else if (isEditing && applyTo === 'this') {
+        scheduleData = scheduleData.filter(item => item.id !== id);
+        saveToLocalStorage();
+        updateScheduleDOM();
+        closeModal();
+        showNotification('Занятие удалено');
+      }
+
+      if (!isEditing || applyTo === 'this') {
+        if (id) {
+          const index = scheduleData.findIndex(item => item.id === id);
+          if (index !== -1) {
+            scheduleData[index] = { id, day, time, lesson, students, type };
+          }
+          showNotification('Занятие обновлено');
+        } else {
+          const newId = generateId(day);
+          scheduleData.push({ id: newId, day, time, lesson, students, type });
+          showNotification('Занятие добавлено');
+        }
+        saveToLocalStorage();
+        updateScheduleDOM();
+        closeModal();
+      } 
+      else if (isEditing && applyTo === 'all') {
+        scheduleData = scheduleData.map(item => {
+          if (item.day === day && item.time === time) {
+            return { ...item, lesson, students, type };
+          }
+          return item;
+        });
+        saveToLocalStorage();
+        updateScheduleDOM();
+        closeModal();
+        showNotification('Все повторяющиеся занятия обновлены');
+      }
     });
 
+    // === Функции для учебного календаря ===
+    function openCalendarModal() {
+      document.getElementById('calendarModal').style.display = 'flex';
+    }
+
+    function closeCalendarModal() {
+      document.getElementById('calendarModal').style.display = 'none';
+    }
+
+    // Обработка клика на дату в календаре
+    window.addEventListener('message', function(event) {
+      if (event.origin !== window.location.origin) return; // безопасность
+
+      const selectedDateStr = event.data.selectedDate;
+      if (selectedDateStr) {
+        const selectedDate = new Date(selectedDateStr);
+        const today = new Date();
+        const diffDays = Math.floor((selectedDate - today) / (1000 * 60 * 60 * 24));
+        const weekOffset = Math.floor(diffDays / 7);
+
+        goToWeek(weekOffset);
+        closeCalendarModal();
+      }
+    });
+
+    // Закрытие модального окна по клику вне
     window.onclick = function(event) {
       if (event.target === modal) {
         closeModal();
+      }
+      if (event.target === document.getElementById('calendarModal')) {
+        closeCalendarModal();
       }
     }
 
@@ -960,5 +1110,3 @@
   </script>
 </body>
 </html>
-
-
