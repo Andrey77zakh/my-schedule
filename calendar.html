@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Учебный календарь 2025–2026</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      padding: 15px;
+      margin: 0;
+      color: #333;
+    }
+
+    .calendar-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .month {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .month-header {
+      background: #007BFF;
+      color: white;
+      text-align: center;
+      padding: 14px;
+      font-weight: 600;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #0069d9;
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      background: #f0f4ff;
+      padding: 10px 0;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    .weekdays div {
+      padding: 4px;
+    }
+
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      padding: 12px;
+      background: #fcfdff;
+    }
+
+    .date-tile {
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(0.75rem, 2.5vw, 0.95rem);
+      font-weight: 500;
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+      cursor: pointer; /* Курсор-показатель */
+    }
+
+    .date-tile:hover {
+      transform: scale(1.1);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+    }
+
+    .date-tile.weekend {
+      background: #ffcdd2;
+      color: #c62828;
+      font-weight: 600;
+    }
+
+    .date-tile.today {
+      background: #e3f2fd;
+      border: 2px solid #007BFF;
+      color: #0d47a1;
+      font-weight: 600;
+    }
+
+    .date-tile.empty {
+      background: transparent;
+      box-shadow: none;
+      visibility: hidden;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      .calendar-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .month-header {
+        padding: 12px;
+        font-size: 1.1rem;
+      }
+      .weekdays {
+        font-size: 0.85rem;
+      }
+      .days {
+        gap: 6px;
+        padding: 10px;
+      }
+      .date-tile {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calendar-container" id="calendar-container">
+    <!-- Месяцы будут сгенерированы здесь -->
+  </div>
+
+  <script>
+    const today = new Date();
+
+    const months = [
+      { name: 'Сентябрь', year: 2025, startDay: 1, days: 30 },     // Пн
+      { name: 'Октябрь',  year: 2025, startDay: 3, days: 31 },     // Ср
+      { name: 'Ноябрь',   year: 2025, startDay: 6, days: 30 },     // Сб
+      { name: 'Декабрь',  year: 2025, startDay: 1, days: 31 },     // Пн
+      { name: 'Январь',   year: 2026, startDay: 4, days: 31 },     // Чт
+      { name: 'Февраль',  year: 2026, startDay: 0, days: 28 },     // Вс
+      { name: 'Март',     year: 2026, startDay: 0, days: 31 },     // Вс
+      { name: 'Апрель',   year: 2026, startDay: 3, days: 30 },     // Ср
+      { name: 'Май',      year: 2026, startDay: 5, days: 31 },     // Пт
+      { name: 'Июнь',     year: 2026, startDay: 1, days: 30 }      // Пн
+    ];
+
+    const weekends = {
+      'Сентябрь': [6,7,13,14,20,21,27,28],
+      'Октябрь': [4,5,11,12,18,19,25,26,27,28,29,30,31],
+      'Ноябрь': [1,2,3,4,8,9,15,22,23,29,30],
+      'Декабрь': [6,7,13,14,20,21,27,28,31],
+      'Январь': [1,2,3,4,5,6,7,8,9,10,11,17,18,24,25,31],
+      'Февраль': [1,7,8,14,15,21,22,23,28],
+      'Март': [1,7,8,14,15,21,22,28,29,30,31],
+      'Апрель': [1,2,3,4,5,11,12,18,19,25,26],
+      'Май': [1,2,3,9,10,11,16,17,23,24,27,28,29,30,31],
+      'Июнь': [1,6,7,13,14,20,21,27,28]
+    };
+
+    const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+    const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+
+    function createMonth(monthData) {
+      const { name, year, startDay, days } = monthData;
+      const container = document.getElementById('calendar-container');
+
+      const monthEl = document.createElement('div');
+      monthEl.className = 'month';
+
+      const header = document.createElement('div');
+      header.className = 'month-header';
+      header.textContent = `${name} ${year}`;
+      monthEl.appendChild(header);
+
+      const weekdays = document.createElement('div');
+      weekdays.className = 'weekdays';
+      dayNames.forEach(day => {
+        const dayEl = document.createElement('div');
+        dayEl.textContent = day;
+        weekdays.appendChild(dayEl);
+      });
+      monthEl.appendChild(weekdays);
+
+      const daysGrid = document.createElement('div');
+      daysGrid.className = 'days';
+
+      for (let i = 0; i < startDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'date-tile empty';
+        daysGrid.appendChild(empty);
+      }
+
+      for (let date = 1; date <= days; date++) {
+        const tile = document.createElement('div');
+        tile.className = 'date-tile';
+        tile.textContent = date;
+
+        if (weekends[name].includes(date)) {
+          tile.classList.add('weekend');
+        }
+
+        const thisDate = new Date(year, monthNames.indexOf(name), date);
+        if (
+          thisDate.getDate() === today.getDate() &&
+          thisDate.getMonth() === today.getMonth() &&
+          thisDate.getFullYear() === today.getFullYear()
+        ) {
+          tile.classList.add('today');
+        }
+
+        // Делаем дату кликабельной
+        tile.onclick = function() {
+          // Отправляем родительской странице выбранную дату
+          window.parent.postMessage(
+            { selectedDate: thisDate.toISOString() },
+            '*'
+          );
+        };
+
+        daysGrid.appendChild(tile);
+      }
+
+      monthEl.appendChild(daysGrid);
+      container.appendChild(monthEl);
+    }
+
+    months.forEach(createMonth);
+  </script>
+</body>
+</html>
